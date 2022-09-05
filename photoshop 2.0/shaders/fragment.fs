@@ -15,6 +15,8 @@ uniform vec2 camOffset;
 uniform int toolSel;
 uniform int toolSize;
 
+uniform vec2 canvasSz;
+
 float mux(vec3 p){
 	if(p.x < p.y){
 		if(p.y < p.z){
@@ -54,55 +56,22 @@ float sdTrapezoid(vec2 p,float r1,float r2,float he )
 
 void canvasCol(){
 	ivec2 crd = ivec2(TextCrd*camZoom+camOffset);
-	if(crd.x < 0 || crd.x > 99 || crd.y < 0 || crd.y > 99){
+	if(crd.x < 0 || crd.x > int(canvasSz.x*255.0) - 1 || crd.y < 0 || crd.y > int(canvasSz.y*255.0) - 1){
 		if(mod(crd.x,2)+mod(crd.y,2)==1){
 			FragColor = mix(vec4(0.5,0.5,0.5,1.0),FragColor,FragColor);
 		}
 		else{
 			FragColor = mix(vec4(0.3,0.3,0.3,1.0),FragColor,FragColor);
-		}	
-
+		}
 	}
 	else{
-		FragColor = mix(texelFetch(canvas,crd,0),FragColor,FragColor);
+		FragColor.rgb = mix(texelFetch(canvas,crd,0).rgb,FragColor.rgb,FragColor.rgb);
 	}
 }
 
 void main(){
 	switch(int(ID)){
 	case 0:
-		if(TextCrd.x < 0.01){
-			if(TextCrd.y < 0.01){
-				FragColor += vec4(1.0-TextCrd.x*100);
-			}
-			if(TextCrd.y > 0.99){
-				FragColor += vec4(TextCrd.y-0.99)*100;
-			}
-			FragColor += vec4(1.0-TextCrd.x*100);
-			canvasCol();
-			return;
-		}
-		if(TextCrd.x > 0.99){
-			if(TextCrd.y < 0.01){
-				FragColor += vec4(1.0-TextCrd.y*100);
-			}
-			if(TextCrd.y > 0.99){
-				FragColor += vec4(TextCrd.y-0.99)*100;
-			}
-			FragColor += vec4(TextCrd.x-0.99)*100;
-			canvasCol();
-			return;
-		}
-		if(TextCrd.y < 0.01){
-			FragColor = vec4(1.0-TextCrd.y*100);
-			canvasCol();
-			return;
-		}
-		if(TextCrd.y > 0.99){
-			FragColor = vec4(TextCrd.y-0.99)*100;
-			canvasCol();
-			return;
-		}
 		canvasCol();
 		break;
 	case 1:
@@ -211,6 +180,22 @@ void main(){
 		}
 		else if(TextCrd.y < 0.5+TextCrd.x*0.5 && TextCrd.y > 0.5-TextCrd.x*0.5){
 			FragColor.rgb = vec3(1.0);
+		}
+		break;
+	case 14:
+		if(canvasSz.x < TextCrd.x+0.01 && canvasSz.x > TextCrd.x-0.01){
+			FragColor.rgb = vec3(1.0,0.0,0.0);
+		}
+		else{
+			FragColor.rbg = vec3(TextCrd.x);
+		}
+		break;
+	case 15:
+		if(canvasSz.y < TextCrd.x+0.01 && canvasSz.y > TextCrd.x-0.01){
+			FragColor.rgb = vec3(0.0,1.0,0.0);
+		}
+		else{
+			FragColor.rbg = vec3(TextCrd.x);
 		}
 		break;
 	}
